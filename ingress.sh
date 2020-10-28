@@ -10,5 +10,6 @@ if [[ $# -eq 0 ]]
     exit 1
 fi
 for i in {1..10}; do curl -k $1 -H "User-Agent:BloodguyBrowser-_-"-; done
+for i in {1..10}; do curl -k $1 -H "User-agent:masscan"; done
 sudo docker run --rm -it -v /tmp/sqlmap:/root/.sqlmap/ paoloo/sqlmap --url $1/?id=1
 sudo docker run shekyan/slowhttptest:latest -c 2000 -X -i 10 -r 200 -t GET -u $1 -x 24 -p 2
