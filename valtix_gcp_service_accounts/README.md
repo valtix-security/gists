@@ -4,7 +4,7 @@ This script is provided by Valtix to create the two GCP Project service accounts
  1. allow Valtix controller access to deploy services into the GCP Project
  2. allow Valtix gateway access to GCP Secret Manager (optional)
 
-### Pre-requisites: enable google APIs
+### Prequisites
 
 ensure that you have set the project context
 ```
@@ -23,3 +23,11 @@ gcloud services enable secretmanager.googleapis.com
 
 change this prefix variable to change the controller and gateway name prefix 
 prefix=valtix
+
+## How to use:
+
+Open GCloud shell and download and run the bash script
+```
+wget https://raw.githubusercontent.com/valtix-security/gists/main/valtix_gcp_service_accounts/valtix_gcp_service_account.sh
+bash valtix_gcp_service_account.sh
+```
