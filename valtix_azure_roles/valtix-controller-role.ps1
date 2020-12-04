@@ -37,6 +37,7 @@ $role.Actions.Add("Microsoft.Network/networkSecurityGroups/*")
 $role.Actions.Add("Microsoft.Storage/storageAccounts/blobServices/*")
 $role.Actions.Add("Microsoft.Compute/images/read")
 $role.Actions.Add("Microsoft.ApiManagement/service/*")
+$role.Actions.Add("Microsoft.ManagedIdentity/userAssignedIdentities/read")
 $role.AssignableScopes.Clear()
 $role.AssignableScopes.Add("/subscriptions/$SubscriptionID")
 
