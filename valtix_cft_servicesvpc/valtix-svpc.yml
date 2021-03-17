@@ -1,0 +1,420 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Create a Service VPC, Subnets, Security-Groups etc"
+Metadata:
+    AWS::CloudFormation::Interface:
+        ParameterGroups:
+            - Label:
+                  default: "Environment"
+              Parameters:
+                  - Prefix
+                  - TenantName
+            - Label:
+                  default: "VPC Configuration"
+              Parameters:
+                  - VPCCidr
+                  - SubnetBits
+                  - Zone1
+                  - Zone2
+        ParameterLabels:
+            Prefix:
+                default: "Prefix"
+            TenantName:
+                default: "Tenant Name"
+            VPCCidr:
+                default: "VPC CIDR"
+            SubnetBits:
+                default: "Subnet Bits"
+            Zone1:
+                default: "Availability Zone 1"
+            Zone2:
+                default: "Availability Zone 2"
+
+Parameters:
+    Prefix:
+        Description: Name tag prefix that's added to all the resources
+        Type: String
+    TenantName:
+        Description: Tenant Name assigned by Valtix
+        Type: String
+    VPCCidr:
+        Description: VPC CidrBlock
+        Type: String
+        Default: 10.0.0.0/16
+    SubnetBits:
+        Description: Number of bits in the subnet (eg. For /24 its 8, /25 its /7, /26 its /6) 32 minus required bits in subnet mask)
+        Type: String
+        Default: 8
+    Zone1:
+        Description: Availability Zone 1
+        Type: AWS::EC2::AvailabilityZone::Name
+    Zone2:
+        Description: Availability Zone 2
+        Type: AWS::EC2::AvailabilityZone::Name
+Resources:
+    ValtixVPC:
+        Type: "AWS::EC2::VPC"
+        Properties:
+            CidrBlock:
+                Ref: VPCCidr
+            Tags:
+                - Key: Name
+                  Value:
+                      Fn::Sub: "${Prefix}"
+                - Key: valtix_acct
+                  Value:
+                      Ref: TenantName
+                - Key: valtix_services_vpc
+                  Value: "true"
+    ValtixInternetGateway:
+        Type: "AWS::EC2::InternetGateway"
+        Properties:
+            Tags:
+                - Key: Name
+                  Value:
+                      Fn::Sub: "${Prefix}-igw"
+    ValtixIGWAttachment:
+        Type: AWS::EC2::VPCGatewayAttachment
+        Properties:
+            VpcId:
+                Ref: ValtixVPC
+            InternetGatewayId:
+                Ref: ValtixInternetGateway
+    ValtixMgmtSubnet1:
+        Type: AWS::EC2::Subnet
+        Properties:
+            MapPublicIpOnLaunch: true
+            AvailabilityZone:
+                Ref: Zone1
+            VpcId:
+                Ref: ValtixVPC
+            CidrBlock:
+                Fn::Select:
+                    - 0
+                    - Fn::Cidr:
+                          - Ref: VPCCidr
+                          - 8
+                          - Ref: SubnetBits
+            Tags:
+                - Key: Name
+                  Value:
+                      Fn::Sub: "${Prefix}-mgmt-${Zone1}"
+    ValtixDatapathSubnet1:
+        Type: AWS::EC2::Subnet
+        Properties:
+            MapPublicIpOnLaunch: true
+            AvailabilityZone:
+                Ref: Zone1
+            VpcId:
+                Ref: ValtixVPC
+            CidrBlock:
+                Fn::Select:
+                    - 1
+                    - Fn::Cidr:
+                          - Ref: VPCCidr
+                          - 8
+                          - Ref: SubnetBits
+            Tags:
+                - Key: Name
+                  Value:
+                      Fn::Sub: "${Prefix}-datapath-${Zone1}"
+    ValtixMgmtSubnet2:
+        Type: AWS::EC2::Subnet
+        Properties:
+            MapPublicIpOnLaunch: true
+            AvailabilityZone:
+                Ref: Zone2
+            VpcId:
+                Ref: ValtixVPC
+            CidrBlock:
+                Fn::Select:
+                    - 2
+                    - Fn::Cidr:
+                          - Ref: VPCCidr
+                          - 8
+                          - Ref: SubnetBits
+            Tags:
+                - Key: Name
+                  Value:
+                      Fn::Sub: "${Prefix}-mgmt-${Zone2}"
+    ValtixDatapathSubnet2:
+        Type: AWS::EC2::Subnet
+        Properties:
+            MapPublicIpOnLaunch: true
+            AvailabilityZone:
+                Ref: Zone2
+            VpcId:
+                Ref: ValtixVPC
+            CidrBlock:
+                Fn::Select:
+                    - 3
+                    - Fn::Cidr:
+                          - Ref: VPCCidr
+                          - 8
+                          - Ref: SubnetBits
+            Tags:
+                - Key: Name
+                  Value:
+                      Fn::Sub: "${Prefix}-datapath-${Zone2}"
+    ValtixNatIngressSubnet1:
+        Type: AWS::EC2::Subnet
+        Properties:
+            AvailabilityZone:
+                Ref: Zone1
+            VpcId:
+                Ref: ValtixVPC
+            CidrBlock:
+                Fn::Select:
+                    - 4
+                    - Fn::Cidr:
+                          - Ref: VPCCidr
+                          - 8
+                          - Ref: SubnetBits
+            Tags:
+                - Key: Name
+                  Value:
+                      Fn::Sub: "${Prefix}-nat-ingress-${Zone1}"
+    ValtixNatEgressSubnet1:
+        Type: AWS::EC2::Subnet
+        Properties:
+            AvailabilityZone:
+                Ref: Zone1
+            VpcId:
+                Ref: ValtixVPC
+            CidrBlock:
+                Fn::Select:
+                    - 5
+                    - Fn::Cidr:
+                          - Ref: VPCCidr
+                          - 8
+                          - Ref: SubnetBits
+            Tags:
+                - Key: Name
+                  Value:
+                      Fn::Sub: "${Prefix}-nat-egress-${Zone1}"
+    ValtixNatIngressSubnet2:
+        Type: AWS::EC2::Subnet
+        Properties:
+            AvailabilityZone:
+                Ref: Zone2
+            VpcId:
+                Ref: ValtixVPC
+            CidrBlock:
+                Fn::Select:
+                    - 6
+                    - Fn::Cidr:
+                          - Ref: VPCCidr
+                          - 8
+                          - Ref: SubnetBits
+            Tags:
+                - Key: Name
+                  Value:
+                      Fn::Sub: "${Prefix}-nat-ingress-${Zone2}"
+    ValtixNatEgressSubnet2:
+        Type: AWS::EC2::Subnet
+        Properties:
+            AvailabilityZone:
+                Ref: Zone2
+            VpcId:
+                Ref: ValtixVPC
+            CidrBlock:
+                Fn::Select:
+                    - 7
+                    - Fn::Cidr:
+                          - Ref: VPCCidr
+                          - 8
+                          - Ref: SubnetBits
+            Tags:
+                - Key: Name
+                  Value:
+                      Fn::Sub: "${Prefix}-nat-egress-${Zone2}"
+    RouteTableDatapath1:
+        Type: AWS::EC2::RouteTable
+        Properties:
+            VpcId:
+                Ref: ValtixVPC
+            Tags:
+                - Key: Name
+                  Value:
+                      Fn::Sub: "${Prefix}-datapath-${Zone1}-rt"
+    RouteTableDatapath2:
+        Type: AWS::EC2::RouteTable
+        Properties:
+            VpcId:
+                Ref: ValtixVPC
+            Tags:
+                - Key: Name
+                  Value:
+                      Fn::Sub: "${Prefix}-datapath-${Zone2}-rt"
+    InternetRouteDatapath1:
+        Type: AWS::EC2::Route
+        Properties:
+            DestinationCidrBlock: 0.0.0.0/0
+            GatewayId:
+                Ref: ValtixInternetGateway
+            RouteTableId:
+                Ref: RouteTableDatapath1
+    InternetRouteDatapath2:
+        Type: AWS::EC2::Route
+        Properties:
+            DestinationCidrBlock: 0.0.0.0/0
+            GatewayId:
+                Ref: ValtixInternetGateway
+            RouteTableId:
+                Ref: RouteTableDatapath2
+    DatapathSubnetRouteTableAssociation1:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+            RouteTableId:
+                Ref: RouteTableDatapath1
+            SubnetId:
+                Ref: ValtixDatapathSubnet1
+    DatapathSubnetRouteTableAssociation2:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+            RouteTableId:
+                Ref: RouteTableDatapath2
+            SubnetId:
+                Ref: ValtixDatapathSubnet2
+    RouteTableManagment1:
+        Type: AWS::EC2::RouteTable
+        Properties:
+            VpcId:
+                Ref: ValtixVPC
+            Tags:
+                - Key: Name
+                  Value:
+                      Fn::Sub: "${Prefix}-mgmt-${Zone1}-rt"
+    RouteTableManagment2:
+        Type: AWS::EC2::RouteTable
+        Properties:
+            VpcId:
+                Ref: ValtixVPC
+            Tags:
+                - Key: Name
+                  Value:
+                      Fn::Sub: "${Prefix}-mgmt-${Zone2}-rt"
+    InternetRouteMgmt1:
+        Type: AWS::EC2::Route
+        Properties:
+            DestinationCidrBlock: 0.0.0.0/0
+            GatewayId:
+                Ref: ValtixInternetGateway
+            RouteTableId:
+                Ref: RouteTableManagment1
+    InternetRouteMgmt2:
+        Type: AWS::EC2::Route
+        Properties:
+            DestinationCidrBlock: 0.0.0.0/0
+            GatewayId:
+                Ref: ValtixInternetGateway
+            RouteTableId:
+                Ref: RouteTableManagment2
+    ManagementSubnetRouteTableAssociation1:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+            RouteTableId:
+                Ref: RouteTableManagment1
+            SubnetId:
+                Ref: ValtixMgmtSubnet1
+    ManagementSubnetRouteTableAssociation2:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+            RouteTableId:
+                Ref: RouteTableManagment2
+            SubnetId:
+                Ref: ValtixMgmtSubnet2
+    RouteTableNatIngress1:
+        Type: AWS::EC2::RouteTable
+        Properties:
+            VpcId:
+                Ref: ValtixVPC
+            Tags:
+                - Key: Name
+                  Value:
+                      Fn::Sub: "${Prefix}-nat-ingress-${Zone1}-rt"
+    RouteTableNatIngress2:
+        Type: AWS::EC2::RouteTable
+        Properties:
+            VpcId:
+                Ref: ValtixVPC
+            Tags:
+                - Key: Name
+                  Value:
+                      Fn::Sub: "${Prefix}-nat-ingress-${Zone2}-rt"
+    IngressSubnetRouteTableAssociation1:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+            RouteTableId:
+                Ref: RouteTableNatIngress1
+            SubnetId:
+                Ref: ValtixNatIngressSubnet1
+    IngressSubnetRouteTableAssociation2:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+            RouteTableId:
+                Ref: RouteTableNatIngress2
+            SubnetId:
+                Ref: ValtixNatIngressSubnet2
+    RouteTableNatEgress:
+        Type: AWS::EC2::RouteTable
+        Properties:
+            VpcId:
+                Ref: ValtixVPC
+            Tags:
+                - Key: Name
+                  Value:
+                      Fn::Sub: "${Prefix}-nat-egress-rt"
+    EgressSubnetRouteTableAssociation1:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+            RouteTableId:
+                Ref: RouteTableNatEgress
+            SubnetId:
+                Ref: ValtixNatEgressSubnet1
+    EgressSubnetRouteTableAssociation2:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+            RouteTableId:
+                Ref: RouteTableNatEgress
+            SubnetId:
+                Ref: ValtixNatEgressSubnet2
+    SecurityGroupDatapath:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+            GroupName:
+                Fn::Sub: "${Prefix}-datapath-sg"
+            GroupDescription: "Security group for the datapath, ingress traffic to the application hits this security-group"
+            VpcId:
+                Ref: ValtixVPC
+            SecurityGroupIngress:
+                - IpProtocol: tcp
+                  FromPort: "65534"
+                  ToPort: "65534"
+                  CidrIp:
+                      Ref: VPCCidr
+                - IpProtocol: udp
+                  FromPort: "6081"
+                  ToPort: "6081"
+                  CidrIp:
+                      Ref: VPCCidr
+            Tags:
+                - Key: Name
+                  Value:
+                      Fn::Sub: "${Prefix}-datapath-sg"
+    SecurityGroupManagement:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+            GroupName:
+                Fn::Sub: "${Prefix}-mgmt-sg"
+            GroupDescription: "Security group for the mgmt, allows gateway instance communication with the controller"
+            VpcId:
+                Ref: ValtixVPC
+            SecurityGroupEgress:
+                - IpProtocol: -1
+                  FromPort: "0"
+                  ToPort: "0"
+                  CidrIp: 0.0.0.0/0
+            Tags:
+                - Key: Name
+                  Value:
+                      Fn::Sub: "${Prefix}-mgmt-sg"
