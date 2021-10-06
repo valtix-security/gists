@@ -1,7 +1,7 @@
 # Parameters
-$AppName = "ValtixApp"
-$CustomRoleName = "valtix-controller-role"
-$SecretKeyName = "client-secret"
+$AppName = "michael-ValtixApp"
+$CustomRoleName = "michael-valtix-controller-role"
+$SecretKeyName = "michae-client-secret"
 
 # Begin Script
 Write-Host "Setting up Valtix Controller Application registration & Service Principal.."
@@ -34,8 +34,9 @@ Write-Host ""
 
 # this is a workaround for Connect-AzureAD not working in PS1
 # more info here: https://github.com/Azure/CloudShell/issues/72
-import-module AzureAD.Standard.Preview
-AzureAD.Standard.Preview\Connect-AzureAD -Identity -TenantID $DirectoryObj.id|Out-Null        
+# import-module AzureAD.Standard.Preview
+# AzureAD.Standard.Preview\Connect-AzureAD -Identity -TenantID $DirectoryObj.id|Out-Null        
+Connect-AzureAD -TenantID $DirectoryObj.id
 
 $AppObj=New-AzureADApplication -DisplayName $AppName -AvailableToOtherTenants 1
 $SPObj=New-AzADServicePrincipal -DisplayName ServicePrincipalName -ApplicationId $AppObj.AppId -SkipAssignment
@@ -78,7 +79,9 @@ New-AzRoleAssignment -ObjectId $SPObj.Id -RoleDefinitionName $CustomRoleObj.Name
 
 #Accept Marketplace Terms
 Write-Host "Accepting Marketplace Terms.."
-az vm image terms accept --publisher valtix --offer datapath --plan valtix_dp_image --subscription $SubscriptionObj.id -o none
+#az vm image terms accept --publisher valtix --offer datapath --plan valtix_dp_image --subscription $SubscriptionObj.id -o none
+
+Get-AzMarketplaceTerms -Publisher "valtix" -Product "valtix-cloud-security" -Name "val_bnd3_b8_azure" | Set-AzMarketplaceTerms -Accept
 
 # Output
 Write-Host "-----------------------------------------------------------------"
