@@ -1,0 +1,25 @@
+{
+    "Name": "ROLENAME",
+    "Scope": "/subscriptions/SUBSCRIPTION",
+    "Actions": [
+      "Microsoft.ApiManagement/service/*",
+      "Microsoft.Compute/disks/*",
+      "Microsoft.Compute/images/read",
+      "Microsoft.Compute/sshPublicKeys/read",
+      "Microsoft.Compute/virtualMachines/*",
+      "Microsoft.ManagedIdentity/userAssignedIdentities/read",
+      "Microsoft.ManagedIdentity/userAssignedIdentities/assign/action",
+      "Microsoft.Network/loadBalancers/*",
+      "Microsoft.Network/networkinterfaces/*",
+      "Microsoft.Network/networkSecurityGroups/*",
+      "Microsoft.Network/publicIPAddresses/*",
+      "Microsoft.Network/routeTables/*",
+      "Microsoft.Network/virtualNetworks/*",
+      "Microsoft.Network/virtualNetworks/subnets/*",
+      "Microsoft.Resources/subscriptions/resourcegroups/*",
+      "Microsoft.Storage/storageAccounts/blobServices/*"
+    ],
+    "assignableScopes": [
+        "/subscriptions/SUBSCRIPTION"
+    ]
+}
