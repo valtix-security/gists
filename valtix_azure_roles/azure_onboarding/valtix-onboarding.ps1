@@ -7,5 +7,6 @@ output1 = ls
 echo "Getting the onboarding file"
 echo $output
 echo $output1
+echo "Complete"
 Write-Output $output
 Write-Output $output1
