@@ -8,6 +8,8 @@ sub_id=$(echo $account_info | jq -r .id)
 tenant_id=$(echo $account_info | jq -r .tenantId)
 
 app_output=$(az ad app create --display-name $APP_NAME)
+echo $app_output > $AZ_SCRIPTS_OUTPUT_PATH
+echo $AZ_SCRIPTS_OUTPUT_PATH
 app_output=$(az ad app list --display-name $APP_NAME)
 echo "app_output: $app_output"
 app_id=$(echo $app_output | jq -r .appId)
