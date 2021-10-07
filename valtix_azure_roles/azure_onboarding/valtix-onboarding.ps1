@@ -15,6 +15,7 @@ sed -e "s/ROLENAME/$ROLE_NAME/" -e "s/SUBSCRIPTION/$sub_id/g" role.json > /tmp/r
 az role definition create --role-definition /tmp/role.json &> /dev/null
 az role assignment create --assignee-object-id $sp_object_id --assignee-principal-type ServicePrincipal --role $ROLE_NAME &> /dev/null
 
+echo "AccountInfo: $account_info"
 echo "Tenant/Directory: $tenant_id"
 echo "Subscription: $sub_id"
 echo "App: $app_id"
