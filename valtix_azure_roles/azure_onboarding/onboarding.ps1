@@ -34,9 +34,9 @@ Write-Host ""
 
 # this is a workaround for Connect-AzureAD not working in PS1
 # more info here: https://github.com/Azure/CloudShell/issues/72
-# import-module AzureAD.Standard.Preview
-# AzureAD.Standard.Preview\Connect-AzureAD -Identity -TenantID $DirectoryObj.id|Out-Null        
-Connect-AzureAD -TenantID $DirectoryObj.id
+Install-Module AzureAD.Standard.Preview
+import-module AzureAD.Standard.Preview
+AzureAD.Standard.Preview\Connect-AzureAD -Identity -TenantID $DirectoryObj.id|Out-Null        
 
 $AppObj=New-AzureADApplication -DisplayName $AppName -AvailableToOtherTenants 1
 $SPObj=New-AzADServicePrincipal -DisplayName ServicePrincipalName -ApplicationId $AppObj.AppId -SkipAssignment
