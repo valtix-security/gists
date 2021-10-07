@@ -1,7 +1,7 @@
 Invoke-WebRequest -Uri https://raw.githubusercontent.com/valtix-security/gists/main/valtix_azure_roles/azure_onboarding/valtix-onboarding.ps1 -OutFile azure-onboarding.ps1
 Invoke-WebRequest -Uri https://raw.githubusercontent.com/valtix-security/gists/main/valtix_azure_roles/azure_onboarding/role.json -OutFile role.json
 
-bash azure-onboarding.ps1
+powershell azure-onboarding.ps1
 
 
 $output = Get-Location
