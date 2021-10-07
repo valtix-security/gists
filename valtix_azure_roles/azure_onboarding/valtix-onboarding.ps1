@@ -1,3 +1,5 @@
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/valtix-security/gists/main/valtix_azure_roles/azure_onboarding/role.json -OutFile role.json
+
 APP_NAME=michael-valtix-controller-app
 ROLE_NAME=michael-valtix-controller-role
 
