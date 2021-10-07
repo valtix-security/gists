@@ -7,7 +7,10 @@ account_info=$(az account show)
 sub_id=$(echo $account_info | jq -r .id)
 tenant_id=$(echo $account_info | jq -r .tenantId)
 
+echo "AppName: $APP_NAME\r"
+
 app_output=$(az ad app create --display-name $APP_NAME)
+echo "app_output: $app_output"
 app_id=$(echo $app_output | jq -r .appId)
 sp_object_id=$(az ad sp create --id $app_id | jq -r .objectId)
 secret=$(az ad app credential reset --id $app_id --credential-description 'valtix-secret' --years 5 2>/dev/null | jq -r .password)
@@ -17,11 +20,11 @@ sed -e "s/ROLENAME/$ROLE_NAME/" -e "s/SUBSCRIPTION/$sub_id/g" role.json > /tmp/r
 az role definition create --role-definition /tmp/role.json &> /dev/null
 az role assignment create --assignee-object-id $sp_object_id --assignee-principal-type ServicePrincipal --role $ROLE_NAME &> /dev/null
 
-echo "AccountInfo: $account_info"
-echo "Tenant/Directory: $tenant_id"
-echo "Subscription: $sub_id"
-echo "App: $app_id"
-echo "Secret: $secret"
+echo "AccountInfo: $account_info\r"
+echo "Tenant/Directory: $tenant_id\r"
+echo "Subscription: $sub_id\r"
+echo "App: $app_id\r"
+echo "Secret: $secret\r"
 
 echo "az role assignment delete --assignee $sp_object_id --role $ROLE_NAME" > delete-azure-setup.sh
 echo "az role definition delete --name $ROLE_NAME" >> delete-azure-setup.sh
