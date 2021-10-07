@@ -7,9 +7,8 @@ account_info=$(az account show)
 sub_id=$(echo $account_info | jq -r .id)
 tenant_id=$(echo $account_info | jq -r .tenantId)
 
-echo "AppName: $APP_NAME\r"
-
 app_output=$(az ad app create --display-name $APP_NAME)
+app_output=$(az ad app list --display-name $APP_NAME)
 echo "app_output: $app_output"
 app_id=$(echo $app_output | jq -r .appId)
 sp_object_id=$(az ad sp create --id $app_id | jq -r .objectId)
